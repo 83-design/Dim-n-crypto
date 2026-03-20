@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dimon Crypto Clicker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --gold: #ffd700;
+            --dark: #121212;
+            --accent: #2c2c2c;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* Главный экран */
+        #game-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .balance {
+            font-size: 40px;
+            font-weight: bold;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .energy-bar {
+            width: 70%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        #energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffcc00, #ff9900);
+            width: 100%;
+            transition: width 0.2s;
+        }
+
+        /* Монета */
+        .coin-container {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .coin-container:active {
+            transform: scale(0.95);
+        }
+
+        .coin {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #fcdb4a 0%, #b8860b 100%);
+            border-radius: 50%;
+            border: 8px solid #8b6508;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(184, 134, 11, 0.6);
+        }
+
+        .coin-text {
+            color: #5d4305;
+            font-weight: 900;
+            font-size: 22px;
+            text-transform: uppercase;
+            padding: 10px;
+        }
+
+        /* Всплывающий текст +1 */
+        .plus-one {
+            position: absolute;
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            animation: moveUp 0.8s ease-out forwards;
+        }
+
+        @keyframes moveUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+
+        /* Магазин (выплывающее окно) */
+        #shop-screen {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 90%;
+            background: #1a1a1a;
+            border-radius: 20px 20px 0 0;
+            transition: bottom 0.3s ease;
+            z-index: 100;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
+        }
+
+        #shop-screen.active { bottom: 0; }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .shop-item {
+            background: #252525;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop-btn {
+            background: var(--gold);
+            color: black;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* Кнопка навигации */
+        .nav-bar {
+            width: 100%;
+            padding: 20px 0;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+        }
+
+        #open-shop {
+            background: var(--accent);
+            color: white;
+            border: 1px solid var(--gold);
+            padding: 10px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-screen">
+        <div class="balance" id="balance">0</div>
+        <div class="energy-bar"><div id="energy-fill"></div></div>
+        <div style="margin-bottom: 10px;">Энергия: <span id="energy-text">100</span>/100</div>
+
+        <div class="coin-container" id="coin">
+            <div class="coin">
+                <div class="coin-text">DIMON<br>CRYPTO</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <button id="open-shop">МАГАЗИН</button>
+    </div>
+
+    <div id="shop-screen">
+        <div class="shop-header">
+            <h2>Магазин скинов</h2>
+            <button id="close-shop" style="background:none; border:none; color:white; font-size:24px;">✕</button>
+        </div>
+        
+        <div class="shop-item">
+            <span>Восст. энергии (полное)</span>
+            <button class="shop-btn" onclick="buyEnergy()">150 🪙</button>
+        </div>
+        <div class="shop-item">
+            <span>Скин Telegram (Blue)</span>
+            <button class="shop-btn" onclick="buySkin('#0088cc', 500)">500 🪙</button>
+        </div>
+        <div class="shop-item">
+            <span>Фиолетовый скин</span>
+            <button class="shop-btn" onclick="buySkin('#8a2be2', 700)">700 🪙</button>
+        </div>
+        <div class="shop-item">
+            <span>✨ ULTIMA GOLD (X2)</span>
+            <button class="shop-btn" onclick="buySkin('linear-gradient(45deg, #ffd700, #ffffff)', 1500)">1500 🪙</button>
+        </div>
+        <div class="shop-item" style="border: 1px solid gold;">
+            <span>🎁 Подарок (12ч)</span>
+            <button id="gift-btn" class="shop-btn" onclick="getGift()">ЗАБРАТЬ</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let coins = parseInt(localStorage.getItem('coins')) || 0;
+        let energy = 100;
+        let lastGiftTime = localStorage.getItem('lastGift') || 0;
+
+        const balanceEl = document.getElementById('balance');
+        const energyEl = document.getElementById('energy-fill');
+        const energyText = document.getElementById('energy-text');
+        const coin = document.getElementById('coin');
+        const shop = document.getElementById('shop-screen');
+
+        function updateUI() {
+            balanceEl.innerText = coins;
+            energyText.innerText = Math.floor(energy);
+            energyEl.style.width = energy + '%';
+            localStorage.setItem('coins', coins);
+        }
+
+        // Клик по монете
+        coin.addEventListener('click', (e) => {
+            if (energy >= 2) {
+                coins += 1;
+                energy -= 2;
+                
+                // Вибрация
+                tg.HapticFeedback.impactOccurred('medium');
+
+                // Анимация +1
+                const plus = document.createElement('div');
+                plus.innerText = '+1';
+                plus.className = 'plus-one';
+                plus.style.left = e.clientX - 20 + 'px';
+                plus.style.top = e.clientY - 20 + 'px';
+                document.body.appendChild(plus);
+                
+                setTimeout(() => plus.remove(), 800);
+                updateUI();
+            }
+        });
+
+        // Регенерация энергии
+        setInterval(() => {
+            if (energy < 100) {
+                energy = Math.min(100, energy + 1);
+                updateUI();
+            }
+        }, 1500);
+
+        // Магазин
+        document.getElementById('open-shop').onclick = () => shop.classList.add('active');
+        document.getElementById('close-shop').onclick = () => shop.classList.remove('active');
+
+        function buyEnergy() {
+            if (coins >= 150) {
+                coins -= 150;
+                energy = 100;
+                updateUI();
+                alert('Энергия восстановлена!');
+            }
+        }
+
+        function buySkin(color, price) {
+            if (coins >= price) {
+                coins -= price;
+                document.querySelector('.coin').style.background = color;
+                updateUI();
+                alert('Скин применен!');
+            } else {
+                alert('Недостаточно монет!');
+            }
+        }
+
+        function getGift() {
+            const now = Date.now();
+            if (now - lastGiftTime > 12 * 60 * 60 * 1000) {
+                coins += 1000;
+                lastGiftTime = now;
+                localStorage.setItem('lastGift', lastGiftTime);
+                updateUI();
+                alert('Вы получили 1000 монет!');
+            } else {
+                alert('Подарок еще не готов!');
+            }
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
+
