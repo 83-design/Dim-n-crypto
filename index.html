@@ -3,29 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dimon Crypto Clicker</title>
+    <title>Falastap Crypto</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --gold: #ffd700;
-            --dark: #121212;
-            --accent: #2c2c2c;
+            --dark: #0a0a0a;
+            --accent: #1e1e1e;
+            --rainbow: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
         }
 
         body {
             background-color: var(--dark);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
+            padding: 0;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             height: 100vh;
+            -webkit-tap-highlight-color: transparent;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
-        /* Главный экран */
         #game-screen {
             display: flex;
             flex-direction: column;
@@ -35,96 +39,145 @@
             width: 100%;
         }
 
-        .balance {
-            font-size: 40px;
-            font-weight: bold;
-            color: var(--gold);
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        .league-badge {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--gold);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-bottom: 10px;
+            color: var(--gold);
+        }
+
+        .balance {
+            font-size: 50px;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            margin-bottom: 5px;
+        }
+
+        .energy-container {
+            width: 250px;
+            text-align: center;
+            margin-bottom: 40px;
         }
 
         .energy-bar {
-            width: 70%;
-            height: 10px;
-            background: #333;
-            border-radius: 5px;
-            margin-bottom: 30px;
+            width: 100%;
+            height: 12px;
+            background: #222;
+            border-radius: 10px;
+            border: 1px solid #333;
             overflow: hidden;
+            margin-top: 8px;
         }
 
         #energy-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ffcc00, #ff9900);
+            background: linear-gradient(90deg, #ffd700, #ffa500);
             width: 100%;
-            transition: width 0.2s;
+            transition: width 0.3s ease;
         }
 
-        /* Монета */
         .coin-container {
             position: relative;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .coin-container:active {
-            transform: scale(0.95);
+            z-index: 10;
         }
 
         .coin {
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
             background: radial-gradient(circle, #fcdb4a 0%, #b8860b 100%);
             border-radius: 50%;
-            border: 8px solid #8b6508;
+            border: 10px solid #8b6508;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            box-shadow: 0 0 30px rgba(184, 134, 11, 0.6);
+            box-shadow: 0 0 50px rgba(184, 134, 11, 0.4);
+            transition: transform 0.05s;
+            cursor: pointer;
         }
+
+        .coin:active { transform: scale(0.92); }
 
         .coin-text {
-            color: #5d4305;
+            color: #4d3803;
             font-weight: 900;
-            font-size: 22px;
-            text-transform: uppercase;
-            padding: 10px;
-        }
-
-        /* Всплывающий текст +1 */
-        .plus-one {
-            position: absolute;
-            color: var(--gold);
-            font-weight: bold;
             font-size: 24px;
             pointer-events: none;
-            animation: moveUp 0.8s ease-out forwards;
         }
 
-        @keyframes moveUp {
+        .rainbow-skin {
+            background: var(--rainbow) !important;
+            background-size: 400% 400% !important;
+            animation: moveRainbow 5s linear infinite !important;
+            border-color: #fff !important;
+        }
+
+        @keyframes moveRainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .plus-one {
+            position: absolute;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 0.7s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
+            100% { opacity: 0; transform: translateY(-120px); }
         }
 
-        /* Магазин (выплывающее окно) */
-        #shop-screen {
+        .nav-bar {
+            width: 100%;
+            background: #151515;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0 30px 0;
+            border-top: 1px solid #222;
+        }
+
+        .nav-btn {
+            background: #252525;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            flex: 0 1 40%;
+        }
+
+        .modal {
             position: fixed;
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 90%;
-            background: #1a1a1a;
-            border-radius: 20px 20px 0 0;
-            transition: bottom 0.3s ease;
-            z-index: 100;
+            height: 85%;
+            background: #111;
+            border-top: 3px solid var(--gold);
+            border-radius: 25px 25px 0 0;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
             padding: 20px;
             box-sizing: border-box;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
+            overflow-y: auto;
         }
 
-        #shop-screen.active { bottom: 0; }
+        .modal.active { bottom: 0; }
 
-        .shop-header {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -132,86 +185,102 @@
         }
 
         .shop-item {
-            background: #252525;
-            margin-bottom: 10px;
+            background: #1c1c1c;
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 15px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .shop-btn {
+        .buy-btn {
             background: var(--gold);
             color: black;
             border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 800;
         }
 
-        /* Кнопка навигации */
-        .nav-bar {
-            width: 100%;
-            padding: 20px 0;
-            background: #1a1a1a;
-            display: flex;
-            justify-content: center;
+        .ref-card {
+            background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
         }
 
-        #open-shop {
-            background: var(--accent);
+        .invite-btn {
+            background: #0088cc;
             color: white;
-            border: 1px solid var(--gold);
-            padding: 10px 40px;
+            border: none;
+            padding: 15px 30px;
             border-radius: 50px;
+            width: 100%;
             font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
     <div id="game-screen">
+        <div class="league-badge" id="league">Новичок</div>
         <div class="balance" id="balance">0</div>
-        <div class="energy-bar"><div id="energy-fill"></div></div>
-        <div style="margin-bottom: 10px;">Энергия: <span id="energy-text">100</span>/100</div>
-
-        <div class="coin-container" id="coin">
-            <div class="coin">
+        
+        <div class="coin-container" id="coin-btn">
+            <div class="coin" id="main-coin">
                 <div class="coin-text">DIMON<br>CRYPTO</div>
+            </div>
+        </div>
+
+        <div class="energy-container">
+            <div style="font-size: 14px; color: #aaa; margin-top:20px;">Энергия: <span id="energy-text">100</span>/100</div>
+            <div class="energy-bar">
+                <div id="energy-fill"></div>
             </div>
         </div>
     </div>
 
     <div class="nav-bar">
-        <button id="open-shop">МАГАЗИН</button>
+        <button class="nav-btn" onclick="openModal('shop')">🏪 МАГАЗИН</button>
+        <button class="nav-btn" onclick="openModal('refs')">👥 РЕФЕРАЛЫ</button>
     </div>
 
-    <div id="shop-screen">
-        <div class="shop-header">
-            <h2>Магазин скинов</h2>
-            <button id="close-shop" style="background:none; border:none; color:white; font-size:24px;">✕</button>
+    <div id="modal-shop" class="modal">
+        <div class="modal-header">
+            <h2>🛒 Магазин</h2>
+            <button onclick="closeModals()" style="background:none; border:none; color:white; font-size:30px;">✕</button>
         </div>
         
         <div class="shop-item">
-            <span>Восст. энергии (полное)</span>
-            <button class="shop-btn" onclick="buyEnergy()">150 🪙</button>
+            <div><b>Энергия</b><br><small>Восстановить всё</small></div>
+            <button class="buy-btn" onclick="buyEnergy()">150 🪙</button>
         </div>
         <div class="shop-item">
-            <span>Скин Telegram (Blue)</span>
-            <button class="shop-btn" onclick="buySkin('#0088cc', 500)">500 🪙</button>
+            <div><b>Telegram Blue</b><br><small>Стильный синий</small></div>
+            <button class="buy-btn" onclick="buySkin('#0088cc', 500, false)">500 🪙</button>
         </div>
-        <div class="shop-item">
-            <span>Фиолетовый скин</span>
-            <button class="shop-btn" onclick="buySkin('#8a2be2', 700)">700 🪙</button>
+        <div class="shop-item" style="border: 1px solid #ff00c8;">
+            <div><b>GOD STATUS</b><br><small>Радужный Dimon ✨</small></div>
+            <button class="buy-btn" onclick="buySkin('', 5000, true)">5000 🪙</button>
         </div>
-        <div class="shop-item">
-            <span>✨ ULTIMA GOLD (X2)</span>
-            <button class="shop-btn" onclick="buySkin('linear-gradient(45deg, #ffd700, #ffffff)', 1500)">1500 🪙</button>
+        <div class="shop-item" style="background: #252500;">
+            <div><b>🎁 Подарок</b><br><small>1000 монет (12ч)</small></div>
+            <button id="gift-btn" class="buy-btn" onclick="getGift()">ЗАБРАТЬ</button>
         </div>
-        <div class="shop-item" style="border: 1px solid gold;">
-            <span>🎁 Подарок (12ч)</span>
-            <button id="gift-btn" class="shop-btn" onclick="getGift()">ЗАБРАТЬ</button>
+    </div>
+
+    <div id="modal-refs" class="modal">
+        <div class="modal-header">
+            <h2>👥 Рефералы</h2>
+            <button onclick="closeModals()" style="background:none; border:none; color:white; font-size:30px;">✕</button>
+        </div>
+        <div class="ref-card">
+            <h3>Зови друзей!</h3>
+            <p>Получай бонусы за каждого приглашенного в Falastap!</p>
+            <button class="invite-btn" onclick="inviteFriend()">ПРИГЛАСИТЬ ДРУГА</button>
         </div>
     </div>
 
@@ -221,90 +290,104 @@
 
         let coins = parseInt(localStorage.getItem('coins')) || 0;
         let energy = 100;
-        let lastGiftTime = localStorage.getItem('lastGift') || 0;
+        let lastGift = localStorage.getItem('lastGift') || 0;
 
         const balanceEl = document.getElementById('balance');
-        const energyEl = document.getElementById('energy-fill');
+        const energyFill = document.getElementById('energy-fill');
         const energyText = document.getElementById('energy-text');
-        const coin = document.getElementById('coin');
-        const shop = document.getElementById('shop-screen');
+        const leagueEl = document.getElementById('league');
+        const mainCoin = document.getElementById('main-coin');
+
+        function getLeague(c) {
+            if (c < 1000) return "Новичок";
+            if (c < 5000) return "Трейдер";
+            if (c < 20000) return "Кит";
+            return "Крипто-Король";
+        }
 
         function updateUI() {
-            balanceEl.innerText = coins;
+            balanceEl.innerText = coins.toLocaleString();
             energyText.innerText = Math.floor(energy);
-            energyEl.style.width = energy + '%';
+            energyFill.style.width = energy + '%';
+            leagueEl.innerText = getLeague(coins);
             localStorage.setItem('coins', coins);
         }
 
-        // Клик по монете
-        coin.addEventListener('click', (e) => {
+        document.getElementById('coin-btn').addEventListener('click', (e) => {
             if (energy >= 2) {
                 coins += 1;
                 energy -= 2;
-                
-                // Вибрация
-                tg.HapticFeedback.impactOccurred('medium');
+                tg.HapticFeedback.impactOccurred('light');
 
-                // Анимация +1
                 const plus = document.createElement('div');
                 plus.innerText = '+1';
                 plus.className = 'plus-one';
                 plus.style.left = e.clientX - 20 + 'px';
-                plus.style.top = e.clientY - 20 + 'px';
+                plus.style.top = e.clientY - 40 + 'px';
                 document.body.appendChild(plus);
                 
-                setTimeout(() => plus.remove(), 800);
+                setTimeout(() => plus.remove(), 700);
                 updateUI();
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
             }
         });
 
-        // Регенерация энергии
         setInterval(() => {
             if (energy < 100) {
-                energy = Math.min(100, energy + 1);
+                energy = Math.min(100, energy + 1.2);
                 updateUI();
             }
         }, 1500);
 
-        // Магазин
-        document.getElementById('open-shop').onclick = () => shop.classList.add('active');
-        document.getElementById('close-shop').onclick = () => shop.classList.remove('active');
+        function openModal(id) {
+            closeModals();
+            document.getElementById('modal-' + id).classList.add('active');
+            tg.HapticFeedback.selectionChanged();
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        }
 
         function buyEnergy() {
             if (coins >= 150) {
-                coins -= 150;
-                energy = 100;
-                updateUI();
-                alert('Энергия восстановлена!');
+                coins -= 150; energy = 100; updateUI();
+                tg.HapticFeedback.notificationOccurred('success');
             }
         }
 
-        function buySkin(color, price) {
+        function buySkin(color, price, isRainbow) {
             if (coins >= price) {
                 coins -= price;
-                document.querySelector('.coin').style.background = color;
+                mainCoin.className = 'coin';
+                if (isRainbow) mainCoin.classList.add('rainbow-skin');
+                else mainCoin.style.background = color;
                 updateUI();
-                alert('Скин применен!');
-            } else {
-                alert('Недостаточно монет!');
+                tg.HapticFeedback.notificationOccurred('success');
             }
         }
 
         function getGift() {
             const now = Date.now();
-            if (now - lastGiftTime > 12 * 60 * 60 * 1000) {
+            if (now - lastGift > 12 * 60 * 60 * 1000) {
                 coins += 1000;
-                lastGiftTime = now;
-                localStorage.setItem('lastGift', lastGiftTime);
+                lastGift = now;
+                localStorage.setItem('lastGift', lastGift);
                 updateUI();
-                alert('Вы получили 1000 монет!');
+                alert('Подарок 1000 монет получен!');
             } else {
-                alert('Подарок еще не готов!');
+                alert('Подарок будет доступен позже!');
             }
+        }
+
+        function inviteFriend() {
+            const botUrl = "https://t.me/Falastap_bot";
+            const text = "Залетай в Falastap Crypto и начни майнить монеты вместе со мной! 🚀";
+            tg.openTelegramLink(`https://t.me/share/url?url=${botUrl}&text=${encodeURIComponent(text)}`);
         }
 
         updateUI();
     </script>
 </body>
 </html>
-
